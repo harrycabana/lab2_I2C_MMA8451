@@ -20,6 +20,8 @@
 #include "sdk_hal_uart0.h"
 #include "sdk_hal_gpio.h"
 #include "sdk_hal_i2c0.h"
+
+#include "sdk_mdlw_leds.h"
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -65,21 +67,22 @@ int main(void) {
     			switch (nuevo_byte_uart) {
 				case 'a':
 				case 'A':
-					gpioPutToggle(KPTB10);
+					toggleLedAzul();
 					break;
 
 				case 'v':
-					gpioPutHigh(KPTB7);
+					apagarLedVerde();
 					break;
 				case 'V':
-					gpioPutLow(KPTB7);
+					encenderLedVerde();
 					break;
 
 				case 'r':
-					gpioPutValue(KPTB6,1);
+					apagarLedRojo();
 					break;
+
 				case 'R':
-					gpioPutValue(KPTB6,0);
+					encenderLedRojo();
 					break;
 
 				case 'M':
