@@ -9,6 +9,7 @@
 /*******************************************************************************
  * Includes
  ******************************************************************************/
+#include <sdk_pph_mma8451Q.h>
 #include <stdio.h>
 #include "board.h"
 #include "peripherals.h"
@@ -20,6 +21,8 @@
 #include "sdk_hal_uart0.h"
 #include "sdk_hal_gpio.h"
 #include "sdk_hal_i2c0.h"
+
+#include "sdk_mdlw_leds.h"
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -45,7 +48,7 @@
 int main(void) {
 	status_t status;
 	uint8_t nuevo_byte_uart;
-	uint8_t	nuevo_dato_i2c;
+	mma8451_data_t	mma8451_data;
 
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
@@ -56,39 +59,73 @@ int main(void) {
 
     (void)uart0Inicializar(115200);	//115200bps
     (void)i2c0MasterInit(100000);	//100kbps
+    if (mma8451QWhoAmI() == kStatus_Success){
+    	(void)mma8451QInit();	//inicializa acelerometro MMA8451Q
+    	printf("MMA8451Q detected!\r\n");
+    }else{
+    	printf("MMA8451Q error\r\n");
+    }
+
 
     while(1) {
     	if(uart0CuantosDatosHayEnBuffer()>0){
     		status=uart0LeerByteDesdeBuffer(&nuevo_byte_uart);
     		if(status==kStatus_Success){
-    			printf("key:%c\r\n",nuevo_byte_uart);
+    			printf("\r\nkey:%c\r\n",nuevo_byte_uart);
     			switch (nuevo_byte_uart) {
 				case 'a':
 				case 'A':
-					gpioPutToggle(KPTB10);
+					toggleLedAzul();
 					break;
 
 				case 'v':
-					gpioPutHigh(KPTB7);
+					apagarLedVerde();
 					break;
 				case 'V':
-					gpioPutLow(KPTB7);
+					encenderLedVerde();
 					break;
 
 				case 'r':
-					gpioPutValue(KPTB6,1);
+					apagarLedRojo();
 					break;
+
 				case 'R':
-					gpioPutValue(KPTB6,0);
+					encenderLedRojo();
 					break;
 
-				case 'M':
-					status=i2c0MasterReadByte(&nuevo_dato_i2c,1, 0x1D, 0x0D);
+				case 'x':
+				case 'X':
+					if(mma8451QReadAccel(&mma8451_data)== kStatus_Success){
 
-					if(nuevo_dato_i2c==0x1A)
-						printf("MMA8460 detected!\r\n");
-					else
-						printf("MMA8460 error\r\n");
+						printf("x:0x%04X\r\n",mma8451_data.x_value);
+					}else{
+						printf("MMA8451Q error\r\n");
+					}
+					break;
+
+				case 'y':
+				case 'Y':
+					if(mma8451QReadAccel(&mma8451_data)== kStatus_Success){
+
+						printf("y:0x%04X\r\n",mma8451_data.y_value);
+					}else{
+						printf("MMA8451Q error\r\n");
+					}
+					break;
+
+				case 'z':
+				case 'Z':
+					if(mma8451QReadAccel(&mma8451_data)== kStatus_Success){
+
+						printf("z:0x%04X\r\n",mma8451_data.z_value);
+					}else{
+						printf("MMA8451Q error\r\n");
+					}
+					break;
+
+				case 'P':
+					i2c0MasterReadByte(&nuevo_byte_uart, 1, 0x1D, 0x09);
+					printf("REG_F_SETUP:%02X\r\n",nuevo_byte_uart);
 					break;
 				}
     		}else{
