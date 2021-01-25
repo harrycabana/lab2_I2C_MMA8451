@@ -93,10 +93,30 @@ int main(void) {
 					encenderLedRojo();
 					break;
 
+				case 'x':
 				case 'X':
 					if(mma8451QReadAccel(&mma8451_data)== kStatus_Success){
+
 						printf("x:0x%04X\r\n",mma8451_data.x_value);
+					}else{
+						printf("MMA8451Q error\r\n");
+					}
+					break;
+
+				case 'y':
+				case 'Y':
+					if(mma8451QReadAccel(&mma8451_data)== kStatus_Success){
+
 						printf("y:0x%04X\r\n",mma8451_data.y_value);
+					}else{
+						printf("MMA8451Q error\r\n");
+					}
+					break;
+
+				case 'z':
+				case 'Z':
+					if(mma8451QReadAccel(&mma8451_data)== kStatus_Success){
+
 						printf("z:0x%04X\r\n",mma8451_data.z_value);
 					}else{
 						printf("MMA8451Q error\r\n");
