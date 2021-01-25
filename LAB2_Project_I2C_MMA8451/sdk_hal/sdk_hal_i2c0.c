@@ -49,7 +49,7 @@ status_t i2c0MasterInit(uint32_t baud_rate) {
     I2C_MasterInit(I2C0, &masterConfig, CLOCK_GetFreq(I2C0_CLK_SRC));
 	return(kStatus_Success);
 }
-/*--------------------------------------------*/
+/*--------------------------------------------
 status_t i2c0MasterReadByte(uint8_t *data, uint8_t bytes_to_read, uint8_t device_address, int8_t memory_address) {
 	i2c_master_transfer_t masterXfer;
 	status_t status;
@@ -65,6 +65,26 @@ status_t i2c0MasterReadByte(uint8_t *data, uint8_t bytes_to_read, uint8_t device
     status=I2C_MasterTransferBlocking(I2C0, &masterXfer);
 
     return(status);
+}
+/*--------------------------------------------*/
+/*--------------------------------------------*/
+status_t i2c0MasterReadByte(uint8_t *data, uint8_t device_address, int8_t memory_address) {
+	i2c_master_transfer_t masterXfer;
+	uint8_t i2c_rx_buffer[1];
+
+    masterXfer.slaveAddress = device_address;
+    masterXfer.direction = kI2C_Read;
+    masterXfer.subaddress = (uint32_t)memory_address;
+    masterXfer.subaddressSize = 1;
+    masterXfer.data = i2c_rx_buffer;
+    masterXfer.dataSize = 1;
+    masterXfer.flags = kI2C_TransferDefaultFlag;
+
+    I2C_MasterTransferBlocking(I2C0, &masterXfer);
+
+    *data=i2c_rx_buffer[0];
+
+    return(kStatus_Success);
 }
 /*--------------------------------------------*/
 status_t i2c0MasterWriteByte(uint8_t *data, uint8_t bytes_to_write, uint8_t device_address, int8_t memory_address) {
